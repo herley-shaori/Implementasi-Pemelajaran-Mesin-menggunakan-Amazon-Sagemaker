@@ -8,13 +8,15 @@ public class PublicSagemakerApp {
     public static void main(final String[] args) {
         App app = new App();
 
-        // replace lines 11 to 13
-        new PublicSagemakerStack(app, "PublicSagemakerStack", StackProps.builder()
-                        .env(Environment.builder().region(AppConstants.REGION).build())
-                        .description(AppConstants.PROJECT_DESCRIPTION)
-                        .build());
+        StackProps stackProps = StackProps.builder()
+                .env(Environment.builder().region(AppConstants.REGION).build())
+                .description(AppConstants.PROJECT_DESCRIPTION)
+                .tags(AppConstants.TAGS)
+                .build();
+
+        // Only instantiate the stack; SageMakerVPC is now inside PublicSagemakerStack
+        new PublicSagemakerStack(app, AppConstants.TAGS.get("Name"), stackProps);
 
         app.synth();
     }
 }
-
