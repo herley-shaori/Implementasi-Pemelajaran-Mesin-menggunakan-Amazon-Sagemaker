@@ -21,7 +21,7 @@ public class SageMakerVPC {
         assert AppConstants.VPC_CIDR != null; // Retain the assertion from the original
         this.vpc = Vpc.Builder.create(scope, id)
                 .ipAddresses(IpAddresses.cidr(AppConstants.VPC_CIDR)) // Use IpAddresses.cidr
-                .maxAzs(3)
+                .maxAzs(1) // Limit to one Availability Zone
                 .build();
 
         // Apply tags from StackProps if provided
