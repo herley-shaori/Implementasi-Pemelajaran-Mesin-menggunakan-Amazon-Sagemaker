@@ -9,13 +9,13 @@
 // import org.junit.jupiter.api.Test;
 
 // example test. To run these tests, uncomment this file, along with the
-// example resource in java/src/main/java/com/myorg/PublicSagemakerStack.java
-// public class PublicSagemakerTest {
+// example resource in java/src/main/java/com/myorg/PrivateSagemakerDomainStack.java
+// public class PrivateSagemakerDomainTest {
 
 //     @Test
 //     public void testStack() throws IOException {
 //         App app = new App();
-//         PublicSagemakerStack stack = new PublicSagemakerStack(app, "test");
+//         PrivateSagemakerDomainStack stack = new PrivateSagemakerDomainStack(app, "test");
 
 //         Template template = Template.fromStack(stack);
 
