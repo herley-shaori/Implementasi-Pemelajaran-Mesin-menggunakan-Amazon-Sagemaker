@@ -1,42 +1,34 @@
 package com.myorg;
 
 import software.amazon.awscdk.App;
-import software.amazon.awscdk.Environment;
 import software.amazon.awscdk.StackProps;
-
-import java.util.Arrays;
+import software.amazon.awscdk.Tags;
+import software.amazon.awscdk.Environment;
 
 public class PrivateSagemakerDomainApp {
     public static void main(final String[] args) {
         App app = new App();
 
-        new PrivateSagemakerDomainStack(app, "PrivateSagemakerDomainStack", StackProps.builder()
-                // If you don't specify 'env', this stack will be environment-agnostic.
-                // Account/Region-dependent features and context lookups will not work,
-                // but a single synthesized template can be deployed anywhere.
+        // Create Environment with region from AppConstants
+        Environment environment = Environment.builder()
+                .region(AppConstants.REGION)
+                .build();
 
-                // Uncomment the next block to specialize this stack for the AWS Account
-                // and Region that are implied by the current CLI configuration.
-                /*
-                .env(Environment.builder()
-                        .account(System.getenv("CDK_DEFAULT_ACCOUNT"))
-                        .region(System.getenv("CDK_DEFAULT_REGION"))
-                        .build())
-                */
+        // Create StackProps with tags, environment, and description from AppConstants
+        StackProps stackProps = StackProps.builder()
+                .tags(AppConstants.TAGS)
+                .env(environment)
+                .description(AppConstants.PROJECT_DESCRIPTION)
+                .build();
 
-                // Uncomment the next block if you know exactly what Account and Region you
-                // want to deploy the stack to.
-                /*
-                .env(Environment.builder()
-                        .account("123456789012")
-                        .region("us-east-1")
-                        .build())
-                */
+        new PrivateSagemakerDomainStack(app, "PrivateSagemakerDomainStack", stackProps);
 
-                // For more information, see https://docs.aws.amazon.com/cdk/latest/guide/environments.html
-                .build());
+        // Apply tags to the stack
+        AppConstants.TAGS.forEach((key, value) -> Tags.of(app).add(key, value));
+
+        // Initialize VPC stack first
+        VpcStack vpcStack = new VpcStack(app, "VpcStack", stackProps);
 
         app.synth();
     }
 }
-
