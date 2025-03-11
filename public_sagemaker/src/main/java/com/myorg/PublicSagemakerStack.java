@@ -3,6 +3,7 @@ package com.myorg;
 import software.amazon.awscdk.RemovalPolicy;
 import software.amazon.awscdk.Stack;
 import software.amazon.awscdk.StackProps;
+import software.amazon.awscdk.Tags;
 import software.amazon.awscdk.services.ec2.ISubnet;
 import software.amazon.awscdk.services.iam.Effect;
 import software.amazon.awscdk.services.iam.PolicyStatement;
@@ -45,7 +46,7 @@ public class PublicSagemakerStack extends Stack {
 
         // Create SageMaker Domain with public internet access
         CfnDomain domain = CfnDomain.Builder.create(this, "SageMakerDomain")
-                .domainName("PublicSageMakerDomain")
+                .domainName(AppConstants.TAGS.get("Name"))
                 .authMode("IAM") // Use IAM for authentication
                 .vpcId(this.sageMakerVPC.getVpc().getVpcId())
                 .subnetIds(this.sageMakerVPC.getVpc().getPublicSubnets().stream()
@@ -56,6 +57,13 @@ public class PublicSagemakerStack extends Stack {
                         .executionRole(sagemakerRole.getRoleArn()) // Use the ARN of the created role
                         .build())
                 .build();
+
+        // Secara manual propagasi tags ke SageMaker Domain
+        if (props != null && props.getTags() != null) {
+            props.getTags().forEach((key, value) -> {
+                Tags.of(domain).add(key, value);
+            });
+        }
 
         // Create User Profile for "herley"
         CfnUserProfile userProfile = CfnUserProfile.Builder.create(this, "HerleyUserProfile")
@@ -68,7 +76,6 @@ public class PublicSagemakerStack extends Stack {
         userProfile.applyRemovalPolicy(RemovalPolicy.DESTROY);
 
         // Ensure that the User Profile is deleted before the Domain
-        // (dengan dependency ini, saat destroy, userProfile dihapus terlebih dahulu)
         userProfile.getNode().addDependency(domain);
     }
 
