@@ -22,8 +22,10 @@ public class PrivateSagemakerDomainApp {
         // Membuat VPC Stack terlebih dahulu
         VpcStack vpcStack = new VpcStack(app, "VpcStack", stackProps);
 
+        S3BucketStack s3BucketStack = new S3BucketStack(app, "S3BucketStack", stackProps);
+
         // Membuat SageMaker Domain Stack
-        new SagemakerDomainStack(app, "SagemakerDomainStack", vpcStack, stackProps);
+        new SagemakerDomainStack(app, "SagemakerDomainStack", vpcStack, s3BucketStack, stackProps, vpcStack.getVpc());
 
         // Menambahkan tag ke semua resource
         AppConstants.TAGS.forEach((key, value) -> Tags.of(app).add(key, value));
