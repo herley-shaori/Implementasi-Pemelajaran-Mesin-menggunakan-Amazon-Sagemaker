@@ -23,7 +23,7 @@ public class SagemakerDomainStack extends Stack {
     public SagemakerDomainStack(final Construct scope, final String id, final VpcStack vpcStack, final S3BucketStack s3BucketStack, final StackProps props, final Vpc vpc) {
         super(scope, id, props);
 
-        // IAM role untuk SageMaker
+        // IAM role for SageMaker
         Role sagemakerExecutionRole = Role.Builder.create(this, "SagemakerExecutionRole")
                 .assumedBy(new ServicePrincipal("sagemaker.amazonaws.com"))
                 .managedPolicies(List.of(
@@ -32,34 +32,36 @@ public class SagemakerDomainStack extends Stack {
                 ))
                 .build();
 
+        // Security Group for SageMaker Domain
         SecurityGroup sagemakerSecurityGroup = SecurityGroup.Builder.create(this, "SagemakerSecurityGroup")
                 .vpc(vpc)
                 .description("Security group for SageMaker Domain")
                 .allowAllOutbound(true)
                 .build();
 
-// Izinkan lalu lintas NFS (port 2049) dari dalam VPC
+        // Allow all traffic from within the VPC
         sagemakerSecurityGroup.addIngressRule(
                 Peer.ipv4(vpc.getVpcCidrBlock()),
                 Port.allTraffic(),
                 "Allow all traffic from within the VPC"
         );
 
+        // Create SageMaker Domain with updated configuration
         CfnDomain sagemakerDomain = CfnDomain.Builder.create(this, "SagemakerVpcDomain")
                 .authMode("IAM")
                 .defaultUserSettings(CfnDomain.UserSettingsProperty.builder()
                         .executionRole(sagemakerExecutionRole.getRoleArn())
+                        .securityGroups(List.of(sagemakerSecurityGroup.getSecurityGroupId()))
                         .build())
                 .domainName("private-sagemaker-domain")
                 .subnetIds(vpc.getPrivateSubnets().stream()
                         .map(ISubnet::getSubnetId)
                         .collect(Collectors.toList()))
                 .vpcId(vpc.getVpcId())
-                .appNetworkAccessType("VpcOnly")
+                .appNetworkAccessType("VpcOnly") // Specify network access type
                 .build();
 
-
-        // Custom Resource untuk menghapus domain dengan RetentionPolicy
+        // Custom Resource to delete domain with RetentionPolicy
         AwsSdkCall deleteDomainCall = AwsSdkCall.builder()
                 .service("SageMaker")
                 .action("deleteDomain")
@@ -81,7 +83,6 @@ public class SagemakerDomainStack extends Stack {
                 )))
                 .build();
 
-        // Menambahkan dependensi agar custom resource dijalankan setelah domain dibuat
         deleteDomainResource.getNode().addDependency(sagemakerDomain);
     }
 }
