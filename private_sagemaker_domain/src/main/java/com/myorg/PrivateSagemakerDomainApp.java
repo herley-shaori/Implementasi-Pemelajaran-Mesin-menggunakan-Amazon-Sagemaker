@@ -9,7 +9,7 @@ public class PrivateSagemakerDomainApp {
     public static void main(final String[] args) {
         App app = new App();
 
-        // Buat environment berdasarkan konfigurasi
+        // Create environment based on configuration
         Environment environment = Environment.builder()
                 .region(AppConstants.REGION)
                 .build();
@@ -19,15 +19,18 @@ public class PrivateSagemakerDomainApp {
                 .description(AppConstants.PROJECT_DESCRIPTION)
                 .build();
 
-        // Membuat VPC Stack terlebih dahulu
+        // Create VPC Stack first
         VpcStack vpcStack = new VpcStack(app, "VpcStack", stackProps);
 
         S3BucketStack s3BucketStack = new S3BucketStack(app, "S3BucketStack", stackProps);
 
-        // Membuat SageMaker Domain Stack
-        new SagemakerDomainStack(app, "SagemakerDomainStack", vpcStack, s3BucketStack, stackProps, vpcStack.getVpc());
+        // Create SageMaker Domain Stack
+        SagemakerDomainStack sagemakerDomainStack = new SagemakerDomainStack(app, "SagemakerDomainStack", vpcStack, s3BucketStack, stackProps, vpcStack.getVpc());
 
-        // Menambahkan tag ke semua resource
+        // Create SageMaker User Profile Stack
+        new SagemakerUserProfileStack(app, "SagemakerUserProfileStack", stackProps, sagemakerDomainStack.getSagemakerDomain().getAttrDomainId(), sagemakerDomainStack.getSagemakerExecutionRole());
+
+        // Add tags to all resources
         AppConstants.TAGS.forEach((key, value) -> Tags.of(app).add(key, value));
 
         app.synth();

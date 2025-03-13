@@ -19,12 +19,14 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class SagemakerDomainStack extends Stack {
+    private final CfnDomain sagemakerDomain;
+    private final Role sagemakerExecutionRole;
 
     public SagemakerDomainStack(final Construct scope, final String id, final VpcStack vpcStack, final S3BucketStack s3BucketStack, final StackProps props, final Vpc vpc) {
         super(scope, id, props);
 
         // IAM role for SageMaker
-        Role sagemakerExecutionRole = Role.Builder.create(this, "SagemakerExecutionRole")
+        this.sagemakerExecutionRole = Role.Builder.create(this, "SagemakerExecutionRole")
                 .assumedBy(new ServicePrincipal("sagemaker.amazonaws.com"))
                 .managedPolicies(List.of(
                         software.amazon.awscdk.services.iam.ManagedPolicy.fromAwsManagedPolicyName("AmazonSageMakerFullAccess"),
@@ -47,7 +49,7 @@ public class SagemakerDomainStack extends Stack {
         );
 
         // Create SageMaker Domain with updated configuration
-        CfnDomain sagemakerDomain = CfnDomain.Builder.create(this, "SagemakerVpcDomain")
+        this.sagemakerDomain = CfnDomain.Builder.create(this, "SagemakerVpcDomain")
                 .authMode("IAM")
                 .defaultUserSettings(CfnDomain.UserSettingsProperty.builder()
                         .executionRole(sagemakerExecutionRole.getRoleArn())
@@ -60,6 +62,9 @@ public class SagemakerDomainStack extends Stack {
                 .vpcId(vpc.getVpcId())
                 .appNetworkAccessType("VpcOnly") // Specify network access type
                 .build();
+
+        // Ensure the domain depends on the security group
+        this.sagemakerDomain.getNode().addDependency(sagemakerSecurityGroup);
 
         // Custom Resource to delete domain with RetentionPolicy
         AwsSdkCall deleteDomainCall = AwsSdkCall.builder()
@@ -84,5 +89,13 @@ public class SagemakerDomainStack extends Stack {
                 .build();
 
         deleteDomainResource.getNode().addDependency(sagemakerDomain);
+    }
+
+    public CfnDomain getSagemakerDomain() {
+        return sagemakerDomain;
+    }
+
+    public Role getSagemakerExecutionRole() {
+        return sagemakerExecutionRole;
     }
 }
