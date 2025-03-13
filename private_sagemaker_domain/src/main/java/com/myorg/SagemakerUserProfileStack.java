@@ -1,5 +1,6 @@
 package com.myorg;
 
+import software.amazon.awscdk.RemovalPolicy;
 import software.amazon.awscdk.Stack;
 import software.amazon.awscdk.StackProps;
 import software.amazon.awscdk.services.iam.Role;
@@ -19,5 +20,8 @@ public class SagemakerUserProfileStack extends Stack {
                         .executionRole(executionRole.getRoleArn())
                         .build())
                 .build();
+
+        // Apply removal policy
+        userProfile.applyRemovalPolicy(RemovalPolicy.DESTROY);
     }
 }

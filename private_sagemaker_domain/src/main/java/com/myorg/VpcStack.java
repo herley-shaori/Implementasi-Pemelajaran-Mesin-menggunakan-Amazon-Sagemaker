@@ -2,6 +2,7 @@ package com.myorg;
 
 import software.amazon.awscdk.Stack;
 import software.amazon.awscdk.StackProps;
+import software.amazon.awscdk.Tags;
 import software.amazon.awscdk.services.ec2.*;
 import software.constructs.Construct;
 
@@ -49,23 +50,26 @@ public class VpcStack extends Stack {
                 .build());
 
         // Existing Interface VPC Endpoints
-        InterfaceVpcEndpoint.Builder.create(this, "SageMakerApiEndpoint")
+        InterfaceVpcEndpoint sageMakerApiEndpoint = InterfaceVpcEndpoint.Builder.create(this, "SageMakerApiEndpoint")
                 .vpc(this.vpc)
                 .service(InterfaceVpcEndpointAwsService.SAGEMAKER_API)
                 .securityGroups(List.of(this.securityGroup))
                 .build();
 
-        InterfaceVpcEndpoint.Builder.create(this, "SageMakerRuntimeEndpoint")
+        InterfaceVpcEndpoint sageMakerRuntimeEndpoint = InterfaceVpcEndpoint.Builder.create(this, "SageMakerRuntimeEndpoint")
                 .vpc(this.vpc)
                 .service(InterfaceVpcEndpointAwsService.SAGEMAKER_RUNTIME)
                 .securityGroups(List.of(this.securityGroup))
                 .build();
 
-        InterfaceVpcEndpoint.Builder.create(this, "S3InterfaceEndpoint")
+        InterfaceVpcEndpoint s3InterfaceEndpoint = InterfaceVpcEndpoint.Builder.create(this, "S3InterfaceEndpoint")
                 .vpc(this.vpc)
                 .service(InterfaceVpcEndpointAwsService.S3)
                 .securityGroups(List.of(this.securityGroup))
                 .build();
+        Tags.of(s3InterfaceEndpoint).add("Name", "S3InterfaceEndpoint");
+        Tags.of(sageMakerApiEndpoint).add("Name", "SageMakerApiEndpoint");
+        Tags.of(sageMakerRuntimeEndpoint).add("Name", "SageMakerRuntimeEndpoint");
     }
 
     public Vpc getVpc() {
