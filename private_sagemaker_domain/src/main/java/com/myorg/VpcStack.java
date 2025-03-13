@@ -16,24 +16,22 @@ public class VpcStack extends Stack {
     public VpcStack(final Construct scope, final String id, final StackProps props) {
         super(scope, id, props);
 
-        assert AppConstants.VPC_CIDR != null;
         assert AppConstants.PUBLIC_SUBNET_CIDR != null;
         assert AppConstants.PRIVATE_SUBNET_CIDR != null;
-
         this.vpc = Vpc.Builder.create(this, "PrivateVpc")
-                .ipAddresses(IpAddresses.cidr(AppConstants.VPC_CIDR))
+                .cidr(AppConstants.VPC_CIDR)
                 .maxAzs(1)
                 .natGateways(1) // NAT Gateway for internet access from private subnet
                 .subnetConfiguration(List.of(
                         SubnetConfiguration.builder()
                                 .name("PublicSubnet")
                                 .subnetType(SubnetType.PUBLIC)
-                                .cidrMask(Integer.parseInt(AppConstants.PUBLIC_SUBNET_CIDR))
+                                .cidrMask(Integer.parseInt(AppConstants.PUBLIC_SUBNET_CIDR.split("/")[1]))
                                 .build(),
                         SubnetConfiguration.builder()
                                 .subnetType(SubnetType.PRIVATE_WITH_EGRESS)
                                 .name("PrivateSubnet")
-                                .cidrMask(Integer.parseInt(AppConstants.PRIVATE_SUBNET_CIDR))
+                                .cidrMask(Integer.parseInt(AppConstants.PRIVATE_SUBNET_CIDR.split("/")[1]))
                                 .build()
                 ))
                 .build();
@@ -43,13 +41,6 @@ public class VpcStack extends Stack {
                 .description("Security group for private SageMaker domain")
                 .allowAllOutbound(true)
                 .build();
-
-        // Allow all traffic from within the VPC
-        this.securityGroup.addIngressRule(
-                Peer.ipv4(this.vpc.getVpcCidrBlock()),
-                Port.allTraffic(),
-                "Allow all traffic from within the VPC"
-        );
 
         // Add Gateway VPC Endpoint for S3
         this.vpc.addGatewayEndpoint("S3GatewayEndpoint", GatewayVpcEndpointOptions.builder()
