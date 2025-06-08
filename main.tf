@@ -5,8 +5,9 @@ module "network" {
   availability_zone   = var.availability_zone
   sg_name_prefix      = var.sg_name_prefix
   subnet_name_prefix  = var.subnet_name_prefix
-  general_suffix      = var.general_suffix
+  general_suffix      = random_string.general_suffix.result
   common_tags         = local.common_tags
+  region              = var.region
 }
 
 module "sagemaker_domain" {
@@ -14,6 +15,6 @@ module "sagemaker_domain" {
   vpc_id      = module.network.vpc_id
   subnet_id   = module.network.subnet_id
   sg_id       = module.network.sg_id
-  general_suffix = var.general_suffix
+  general_suffix = random_string.general_suffix.result
   common_tags = local.common_tags
 }

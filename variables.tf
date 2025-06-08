@@ -34,8 +34,3 @@ variable "subnet_name_prefix" {
   type        = string
   default     = "sagemaker-domain-subnet"
 }
-
-variable "general_suffix" {
-  description = "General suffix to append to resource names"
-  type        = string
-}
