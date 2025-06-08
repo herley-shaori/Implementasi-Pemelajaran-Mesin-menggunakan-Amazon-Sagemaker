@@ -5,14 +5,15 @@ module "network" {
   availability_zone   = var.availability_zone
   sg_name_prefix      = var.sg_name_prefix
   subnet_name_prefix  = var.subnet_name_prefix
-  vpc_name_prefix     = var.vpc_name_prefix
-  vpc_suffix          = random_string.vpc_suffix.result
+  general_suffix      = var.general_suffix
+  common_tags         = local.common_tags
 }
 
-# module "sagemaker_domain" {
-#   source     = "./sagemaker_domain"
-#   vpc_id     = module.network.vpc_id
-#   subnet_id  = module.network.subnet_id
-#   sg_id      = module.network.sg_id
-#   vpc_suffix = random_string.vpc_suffix.result
-# }
+module "sagemaker_domain" {
+  source      = "./sagemaker_domain"
+  vpc_id      = module.network.vpc_id
+  subnet_id   = module.network.subnet_id
+  sg_id       = module.network.sg_id
+  general_suffix = var.general_suffix
+  common_tags = local.common_tags
+}

@@ -1,12 +1,12 @@
 resource "aws_vpc" "main" {
   cidr_block = var.vpc_cidr
-  tags = {
-    Name = "${var.vpc_name_prefix}-${var.vpc_suffix}"
-  }
+  tags = merge({
+    Name = "vpc-${var.general_suffix}"
+  }, var.common_tags)
 }
 
 resource "aws_security_group" "sagemaker_domain" {
-  name        = "${var.sg_name_prefix}-${var.vpc_suffix}"
+  name        = "${var.sg_name_prefix}-${var.general_suffix}"
   description = "Security group for SageMaker Domain"
   vpc_id      = aws_vpc.main.id
 
@@ -31,9 +31,9 @@ resource "aws_security_group" "sagemaker_domain" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  tags = {
-    Name = "${var.sg_name_prefix}-${var.vpc_suffix}"
-  }
+  tags = merge({
+    Name = "${var.sg_name_prefix}-${var.general_suffix}"
+  }, var.common_tags)
 }
 
 resource "aws_subnet" "sagemaker_domain" {
@@ -41,7 +41,7 @@ resource "aws_subnet" "sagemaker_domain" {
   cidr_block              = var.subnet_cidr
   availability_zone       = var.availability_zone
   map_public_ip_on_launch = true
-  tags = {
-    Name = "${var.subnet_name_prefix}-${var.vpc_suffix}"
-  }
+  tags = merge({
+    Name = "${var.subnet_name_prefix}-${var.general_suffix}"
+  }, var.common_tags)
 }

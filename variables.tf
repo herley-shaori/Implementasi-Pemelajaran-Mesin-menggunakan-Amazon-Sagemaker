@@ -35,8 +35,7 @@ variable "subnet_name_prefix" {
   default     = "sagemaker-domain-subnet"
 }
 
-variable "vpc_name_prefix" {
-  description = "Prefix for VPC name"
+variable "general_suffix" {
+  description = "General suffix to append to resource names"
   type        = string
-  default     = "ml-vpc"
 }

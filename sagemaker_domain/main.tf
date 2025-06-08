@@ -1,5 +1,5 @@
 resource "aws_iam_role" "sagemaker_execution_role" {
-  name = "sagemaker-execution-role-${var.vpc_suffix}"
+  name = "sagemaker-execution-role-${var.general_suffix}"
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
     Statement = [{
@@ -10,6 +10,7 @@ resource "aws_iam_role" "sagemaker_execution_role" {
       Action = "sts:AssumeRole"
     }]
   })
+  tags = var.common_tags
 }
 
 resource "aws_iam_role_policy_attachment" "sagemaker_execution_policy" {
@@ -18,7 +19,7 @@ resource "aws_iam_role_policy_attachment" "sagemaker_execution_policy" {
 }
 
 resource "aws_sagemaker_domain" "main" {
-  domain_name = "ml-domain-${var.vpc_suffix}"
+  domain_name = "ml-domain-${var.general_suffix}"
   auth_mode   = "IAM"
   vpc_id      = var.vpc_id
   subnet_ids  = [var.subnet_id]
@@ -27,4 +28,5 @@ resource "aws_sagemaker_domain" "main" {
   default_user_settings {
     execution_role = aws_iam_role.sagemaker_execution_role.arn
   }
+  tags = var.common_tags
 }
