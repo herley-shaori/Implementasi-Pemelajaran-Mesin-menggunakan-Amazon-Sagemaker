@@ -1,1 +1,0 @@
-cdk destroy -f --all
