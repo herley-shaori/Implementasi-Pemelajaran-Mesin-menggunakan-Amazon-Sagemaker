@@ -1,12 +1,12 @@
 resource "aws_vpc" "main" {
-  cidr_block = "10.0.0.0/16"
+  cidr_block = var.vpc_cidr
   tags = {
-    Name = "ml-vpc"
+    Name = "${var.vpc_name_prefix}-${var.vpc_suffix}"
   }
 }
 
 resource "aws_security_group" "sagemaker_domain" {
-  name        = "sagemaker-domain-sg-${random_string.vpc_suffix.result}"
+  name        = "${var.sg_name_prefix}-${var.vpc_suffix}"
   description = "Security group for SageMaker Domain"
   vpc_id      = aws_vpc.main.id
 
@@ -18,10 +18,10 @@ resource "aws_security_group" "sagemaker_domain" {
   }
 
   ingress {
-    from_port       = 0
-    to_port         = 0
-    protocol        = "-1"
-    security_groups = [aws_security_group.sagemaker_domain.id]
+    from_port = 0
+    to_port   = 0
+    protocol  = "-1"
+    self      = true
   }
 
   egress {
@@ -32,16 +32,16 @@ resource "aws_security_group" "sagemaker_domain" {
   }
 
   tags = {
-    Name = "sagemaker-domain-sg-${random_string.vpc_suffix.result}"
+    Name = "${var.sg_name_prefix}-${var.vpc_suffix}"
   }
 }
 
 resource "aws_subnet" "sagemaker_domain" {
   vpc_id                  = aws_vpc.main.id
-  cidr_block              = "10.0.1.0/24"
-  availability_zone       = "ap-southeast-3a"
+  cidr_block              = var.subnet_cidr
+  availability_zone       = var.availability_zone
   map_public_ip_on_launch = true
   tags = {
-    Name = "sagemaker-domain-subnet-${random_string.vpc_suffix.result}"
+    Name = "${var.subnet_name_prefix}-${var.vpc_suffix}"
   }
 }

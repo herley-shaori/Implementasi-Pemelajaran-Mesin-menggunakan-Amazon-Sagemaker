@@ -1,5 +1,5 @@
 resource "aws_iam_role" "sagemaker_execution_role" {
-  name = "sagemaker-execution-role-${random_string.vpc_suffix.result}"
+  name = "sagemaker-execution-role-${var.vpc_suffix}"
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
     Statement = [{
@@ -18,10 +18,10 @@ resource "aws_iam_role_policy_attachment" "sagemaker_execution_policy" {
 }
 
 resource "aws_sagemaker_domain" "main" {
-  domain_name = "ml-domain-${random_string.vpc_suffix.result}"
+  domain_name = "ml-domain-${var.vpc_suffix}"
   auth_mode   = "IAM"
-  vpc_id      = aws_vpc.main.id
-  subnet_ids  = [aws_subnet.sagemaker_domain.id]
+  vpc_id      = var.vpc_id
+  subnet_ids  = [var.subnet_id]
   app_network_access_type = "VpcOnly"
 
   default_user_settings {
