@@ -1,13 +1,3 @@
-variable "subnet_cidr" {
-  description = "CIDR block for the SageMaker subnet"
-  type        = string
-}
-
-variable "availability_zone" {
-  description = "Availability zone for the subnet"
-  type        = string
-}
-
 variable "sg_name_prefix" {
   description = "Prefix for security group name"
   type        = string
@@ -38,4 +28,14 @@ variable "vpc_cidr" {
 variable "region" {
   description = "AWS region for VPC endpoints"
   type        = string
+}
+
+variable "subnet_cidrs" {
+  description = "List of CIDR blocks for the SageMaker subnets in multiple AZs"
+  type        = list(string)
+}
+
+variable "availability_zones" {
+  description = "List of availability zones for the subnets"
+  type        = list(string)
 }

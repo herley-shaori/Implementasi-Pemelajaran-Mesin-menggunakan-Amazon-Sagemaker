@@ -22,7 +22,7 @@ resource "aws_sagemaker_domain" "main" {
   domain_name = "ml-domain-${var.general_suffix}"
   auth_mode   = "IAM"
   vpc_id      = var.vpc_id
-  subnet_ids  = [var.subnet_id]
+  subnet_ids  = var.subnet_ids
   app_network_access_type = "VpcOnly"
 
   default_user_settings {

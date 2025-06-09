@@ -39,12 +39,13 @@ resource "aws_security_group" "sagemaker_domain" {
 }
 
 resource "aws_subnet" "sagemaker_domain" {
+  count                    = length(var.subnet_cidrs)
   vpc_id                  = aws_vpc.main.id
-  cidr_block              = var.subnet_cidr
-  availability_zone       = var.availability_zone
+  cidr_block              = var.subnet_cidrs[count.index]
+  availability_zone       = var.availability_zones[count.index]
   map_public_ip_on_launch = true
   tags = merge({
-    Name = "${var.subnet_name_prefix}-${var.general_suffix}"
+    Name = "${var.subnet_name_prefix}-${var.general_suffix}-${count.index}"
   }, var.common_tags)
 }
 
@@ -52,7 +53,7 @@ resource "aws_vpc_endpoint" "sagemaker_api" {
   vpc_id            = aws_vpc.main.id
   service_name      = "com.amazonaws.${var.region}.sagemaker.api"
   vpc_endpoint_type = "Interface"
-  subnet_ids        = [aws_subnet.sagemaker_domain.id]
+  subnet_ids        = aws_subnet.sagemaker_domain[*].id
   security_group_ids = [aws_security_group.sagemaker_domain.id]
   private_dns_enabled = true
   tags = merge({
@@ -64,7 +65,7 @@ resource "aws_vpc_endpoint" "sagemaker_runtime" {
   vpc_id            = aws_vpc.main.id
   service_name      = "com.amazonaws.${var.region}.sagemaker.runtime"
   vpc_endpoint_type = "Interface"
-  subnet_ids        = [aws_subnet.sagemaker_domain.id]
+  subnet_ids        = aws_subnet.sagemaker_domain[*].id
   security_group_ids = [aws_security_group.sagemaker_domain.id]
   private_dns_enabled = true
   tags = merge({
@@ -76,7 +77,7 @@ resource "aws_vpc_endpoint" "sts" {
   vpc_id            = aws_vpc.main.id
   service_name      = "com.amazonaws.${var.region}.sts"
   vpc_endpoint_type = "Interface"
-  subnet_ids        = [aws_subnet.sagemaker_domain.id]
+  subnet_ids        = aws_subnet.sagemaker_domain[*].id
   security_group_ids = [aws_security_group.sagemaker_domain.id]
   private_dns_enabled = true
   tags = merge({
@@ -88,9 +89,7 @@ resource "aws_vpc_endpoint" "s3" {
   vpc_id       = aws_vpc.main.id
   service_name = "com.amazonaws.${var.region}.s3"
   vpc_endpoint_type = "Gateway"
-  route_table_ids = [
-    aws_vpc.main.default_route_table_id
-  ]
+  route_table_ids = [aws_vpc.main.default_route_table_id]
   tags = merge({
     Name = "s3-endpoint-${var.general_suffix}"
   }, var.common_tags)
