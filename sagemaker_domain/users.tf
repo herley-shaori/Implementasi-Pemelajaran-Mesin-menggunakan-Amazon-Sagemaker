@@ -17,10 +17,3 @@ resource "aws_sagemaker_user_profile" "data_scientist_one" {
     }
   }
 }
-
-resource "aws_sagemaker_space" "data_scientist_lab_space" {
-  depends_on = [aws_sagemaker_user_profile.data_scientist_one]
-  domain_id  = aws_sagemaker_domain.main.id
-  space_name = "data-scientist-lab-space-${var.general_suffix}"
-  tags       = var.common_tags
-}
