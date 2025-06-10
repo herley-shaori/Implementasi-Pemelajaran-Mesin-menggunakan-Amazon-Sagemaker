@@ -37,4 +37,9 @@ override.tf.json
 terraform.rc
 
 .idea
+.venv
 cdk.context.json
+
+# Ignore model and data files
+*.pkl
+*.csv
