@@ -6,7 +6,7 @@ from sklearn.metrics import classification_report
 import joblib
 
 # Generate synthetic data
-X, y = make_classification(n_samples=1200, n_features=5, n_informative=3, n_redundant=0, random_state=42)
+X, y = make_classification(n_samples=500, n_features=5, n_informative=3, n_redundant=0, random_state=42)
 columns = [f'feature_{i+1}' for i in range(X.shape[1])]
 df = pd.DataFrame(X, columns=columns)
 df['target'] = y
